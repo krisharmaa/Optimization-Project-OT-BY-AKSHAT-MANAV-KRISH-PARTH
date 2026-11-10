@@ -9,3 +9,10 @@ dist/
 work/
 .DS_Store
 *.tmp
+
+# Website
+frontend/node_modules/
+frontend/dist/
+*.tsbuildinfo
+data/clockwork.db*
+results/web/

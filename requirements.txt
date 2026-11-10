@@ -2,3 +2,7 @@ numpy>=1.26,<3
 matplotlib>=3.9,<4
 pytest>=8,<9
 # Optional exact reference: pip install '.[exact]'
+# Website backend (api/): FastAPI + uvicorn; httpx is only needed for the web tests
+fastapi>=0.110
+uvicorn>=0.29
+httpx>=0.27

@@ -58,6 +58,8 @@ src/timetable/
   metrics.py                  Sorting, exact 3-D hypervolume, spacing, comparisons
   experiments.py              Budgets, checkpoints, analysis and representatives
   export.py / visualization.py / cli.py
+api/                          Website backend: server.py (runs), bridge.py (format), optimizer.py, campus/ (app)
+frontend/                     Clockwork website (React + Vite + TypeScript)
  tests/                       Constraint, objective, algorithm and integration tests
  experiments/                 Configs, export and independent verification scripts
  data/                        Synthetic instances; separate certificate folders
@@ -70,7 +72,7 @@ src/timetable/
 
 ## 6. Requirements
 
-Python **3.11+**; tested on Linux with Python 3.12. NumPy and Matplotlib support analysis/plots. The optimizer and separate checker are transparent Python. Saved schedules are rechecked outside search with this common checker; hand-calculated tests and CP-SAT provide additional independent checks. Pytest is used for tests; OR-Tools is optional for CP-SAT. No GPU, web service, database or paid account is required. Exact tested versions are in `requirements-lock.txt` and experiment manifests.
+Python **3.11+**; tested on Linux with Python 3.12. NumPy and Matplotlib support analysis/plots. The optimizer and separate checker are transparent Python. Saved schedules are rechecked outside search with this common checker; hand-calculated tests and CP-SAT provide additional independent checks. Pytest is used for tests; OR-Tools is optional for CP-SAT. No GPU, database or paid account is required for the optimizer; the optional website uses FastAPI, SQLite (standard library) and Node 18+. Exact tested versions are in `requirements-lock.txt` and experiment manifests.
 
 ## 7. Installation
 
@@ -85,7 +87,7 @@ python -m pip install -e . --no-deps
 python -m pytest -q
 ```
 
-A flexible install is `python -m pip install -e '.[test,exact]'`; omit `exact` to avoid OR-Tools. Core optimization and exhaustive micro examples work without it. On Windows PowerShell activate `.venv\Scripts\Activate.ps1` instead.
+The lock file covers the optimizer, tests and CP-SAT only. **For the website also run** `python -m pip install -r requirements.txt` (adds FastAPI/uvicorn/httpx) and `npm --prefix frontend ci` (Node 18+). A flexible install is `python -m pip install -e '.[test,exact,web]'`; omit `exact` to avoid OR-Tools. Core optimization and exhaustive micro examples work without it. On Windows PowerShell activate `.venv\Scripts\Activate.ps1` instead.
 
 Repository: <https://github.com/akshattikaria/Optimization-Project-OT-BY-AKSHAT-MANAV-KRISH-PARTH>. The original benchmark belongs to commit `9947d9d`; the current project includes the completed follow-up and its measured source snapshot. To clone:
 
@@ -146,6 +148,27 @@ python experiments/export_review.py --study benchmark_reproduction
 ```
 
 `experiments/smoke.json` is a shorter all-size study. `experiments/full_study.json` defines five instances and 30 solver seeds per instance at larger budgets; **a runnable configuration is not a completed measurement**. See [experiment protocol](experiments/README.md).
+
+### Web application (Clockwork frontend)
+
+The project also runs as a website: the Clockwork frontend and its application layer (accounts and roles, timetable
+views, Pareto explorer, calendar, teacher availability, leave, substitute requests, quizzes/extra classes, online
+assessments, holidays, syllabus completion, notifications) on top of **this repository's final memetic NSGA-II**.
+Website runs also execute the repeated-greedy baseline with the same evaluations and seed, re-check every timetable
+with the independent evaluator, and refuse to publish an infeasible one.
+
+```bash
+python -m pip install -r requirements.txt
+npm --prefix frontend ci
+python -m uvicorn api.server:app --port 8000    # terminal 1
+npm --prefix frontend run dev                   # terminal 2, then open http://localhost:5173 (admin / admin)
+```
+
+If port 8000 is taken, start uvicorn on another port and the frontend with `CLOCKWORK_API=http://127.0.0.1:<port>`.
+With both servers running on a fresh database, `python experiments/web_integration_check.py --web http://localhost:5173`
+runs the 61-point end-to-end check ([latest results](docs/final_integration_check.md)).
+
+See [web application guide](docs/web_application.md) and [accounts and calendar rules](docs/accounts-and-calendar.md).
 
 ## 9. Data
 
