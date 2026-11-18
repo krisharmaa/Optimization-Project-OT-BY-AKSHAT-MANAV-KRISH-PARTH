@@ -11,6 +11,8 @@ import react from '@vitejs/plugin-react';
 const agent = new http.Agent({ keepAlive: true });
 
 export default defineConfig({
+  // GitHub Pages serves the site under /<repository>/; the Pages workflow sets VITE_BASE. Vercel and local use '/'.
+  base: process.env.VITE_BASE ?? '/',
   plugins: [react()],
   server: {
     port: 5173,

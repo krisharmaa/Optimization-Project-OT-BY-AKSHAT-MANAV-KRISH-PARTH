@@ -189,6 +189,8 @@ If port 8000 is taken, start uvicorn on another port and the frontend with `CLOC
 With both servers running on a fresh database, `python experiments/web_integration_check.py --web http://localhost:5173`
 runs the 61-point end-to-end check ([latest results](docs/final_integration_check.md)).
 
+To put the website online (backend on Render, website on Vercel and/or GitHub Pages), follow [the deployment guide](docs/deployment.md).
+
 See [web application guide](docs/web_application.md) and [accounts and calendar rules](docs/accounts-and-calendar.md).
 
 ## 9. Data

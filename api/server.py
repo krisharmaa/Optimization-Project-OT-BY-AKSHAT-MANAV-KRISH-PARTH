@@ -16,6 +16,7 @@ syllabus, requests, notifications, teacher constraints) is in api/campus/routes.
 from __future__ import annotations
 
 import json
+import os
 import sys
 import threading
 import time
@@ -49,7 +50,10 @@ app = FastAPI(title="Clockwork timetable optimiser", version="1.0.0")
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 app.add_middleware(
     CORSMiddleware,
+    # Local development on any port, plus the deployed websites listed in CLOCKWORK_ALLOWED_ORIGINS
+    # (comma-separated, e.g. "https://clockwork.vercel.app,https://name.github.io").
     allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_origins=[o.strip().rstrip("/") for o in os.environ.get("CLOCKWORK_ALLOWED_ORIGINS", "").split(",") if o.strip()],
     allow_methods=["*"],
     allow_headers=["*"],
 )

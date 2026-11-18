@@ -149,15 +149,18 @@ def hash_token(token: str) -> str:
 # setup
 # ---------------------------------------------------------------------------
 def init_db() -> None:
-    """Create tables; on an empty database create the superuser admin/admin and a default semester."""
+    """Create tables; on an empty database create the superuser admin (password: CLOCKWORK_ADMIN_PASSWORD, else
+    "admin") and a default semester."""
     with connect() as con:
         con.executescript(SCHEMA)
         if con.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0:
-            h, s = hash_password("admin")
+            # On a public deployment set CLOCKWORK_ADMIN_PASSWORD; locally the first password is "admin".
+            chosen = os.environ.get("CLOCKWORK_ADMIN_PASSWORD")
+            h, s = hash_password(chosen or "admin")
             con.execute(
                 "INSERT INTO users (username, password_hash, salt, role, display_name, default_password, created_at) "
-                "VALUES ('admin', ?, ?, 'admin', 'Administrator', 1, ?)",
-                (h, s, now()),
+                "VALUES ('admin', ?, ?, 'admin', 'Administrator', ?, ?)",
+                (h, s, 0 if chosen else 1, now()),
             )
         if not con.execute("SELECT 1 FROM settings WHERE key = 'semester_start'").fetchone():
             monday = date.today() - timedelta(days=date.today().weekday())

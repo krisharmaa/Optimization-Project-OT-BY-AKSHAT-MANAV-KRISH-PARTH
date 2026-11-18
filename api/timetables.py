@@ -181,6 +181,7 @@ def ensure_default(con) -> None:
     """A fresh database starts with the Demo department as an editable template (cold start)."""
     if con.execute("SELECT COUNT(*) FROM timetables").fetchone()[0] == 0:
         inst = problem_to_web(demo_problem())
+        inst["name"] = "Demo department"  # the timetable's name is also its title everywhere in the website
         _insert(con, "Demo department", inst, None, "demo", "system")
 
 

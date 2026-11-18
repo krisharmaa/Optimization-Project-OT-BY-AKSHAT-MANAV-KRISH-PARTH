@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { API_ROOT } from './config';
 
 export type Role = 'admin' | 'teacher' | 'student';
 
@@ -36,7 +37,7 @@ export const useAuth = create<AuthState>()(
       setShowInbox: (v) => set({ showInbox: v }),
       logout: () => {
         const token = useAuth.getState().token;
-        if (token) fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+        if (token) fetch(`${API_ROOT}/auth/logout`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
         set({ token: null, user: null, unread: 0, showInbox: false });
       },
     }),
@@ -52,7 +53,7 @@ export async function api<T = unknown>(path: string, init: RequestInit & { body?
   if (init.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
   let res: Response;
   try {
-    res = await fetch(`/api${path}`, { ...init, headers });
+    res = await fetch(`${API_ROOT}${path}`, { ...init, headers });
   } catch {
     throw new Error('Cannot reach the server. Is it running? (python -m uvicorn api.server:app --port 8000)');
   }

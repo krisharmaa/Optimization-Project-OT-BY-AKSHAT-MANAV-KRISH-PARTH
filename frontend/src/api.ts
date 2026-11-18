@@ -1,13 +1,14 @@
 import type { DecisionResult, RunParams, RunProgress, RunResult, ScenarioInfo } from './types';
 import { useAuth } from './auth';
+import { API_ROOT } from './config';
 
 const authHeader = (): Record<string, string> => {
   const t = useAuth.getState().token;
   return t ? { Authorization: `Bearer ${t}` } : {};
 };
 
-// Requests go to /api, which Vite proxies to the Python server on port 8000 (see vite.config.ts).
-const BASE = '/api';
+// Requests go to the backend (src/config.ts): /api through the Vite proxy in development, VITE_API_URL when deployed.
+const BASE = API_ROOT;
 
 async function json<T>(res: Response): Promise<T> {
   if (res.status === 401 && useAuth.getState().token) useAuth.getState().logout();
